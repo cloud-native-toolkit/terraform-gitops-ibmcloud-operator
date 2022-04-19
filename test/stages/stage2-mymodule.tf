@@ -6,4 +6,6 @@ module "gitops_module" {
   server_name = module.gitops.server_name
   namespace = module.gitops_namespace.name
   kubeseal_cert = module.gitops.sealed_secrets_cert
+  ibmcloud_api_key = var.ibmcloud_api_key
+  region = var.region
 }

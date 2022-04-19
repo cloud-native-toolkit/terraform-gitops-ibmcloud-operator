@@ -1,9 +1,9 @@
-name: ""
+name: gitops-ibmcloud-operator
 type: gitops
-description: ""
+description: Module to populate a gitops repo with the resources to provision the IBM Cloud operator in a cluster
 tags:
-  - tools
-  - gitops
+  - ibmcloud
+  - operator
 versions:
   - platforms:
       - kubernetes
