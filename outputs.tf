@@ -1,7 +1,7 @@
 
 output "name" {
   description = "The name of the module"
-  value       = local.config_name
+  value       = local.name
   depends_on  = [null_resource.setup_operator_gitops]
 }
 

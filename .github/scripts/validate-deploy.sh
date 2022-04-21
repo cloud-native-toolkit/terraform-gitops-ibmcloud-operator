@@ -22,7 +22,7 @@ if ! command -v kubectl 1> /dev/null 2> /dev/null; then
 fi
 
 export KUBECONFIG=$(cat .kubeconfig)
-NAMESPACE=$(cat .namespace)
+NAMESPACE=$(jq -r '.namespace // "openshift-operators"' gitops-output.json)
 COMPONENT_NAME=$(jq -r '.name // "my-module"' gitops-output.json)
 BRANCH=$(jq -r '.branch // "main"' gitops-output.json)
 SERVER_NAME=$(jq -r '.server_name // "default"' gitops-output.json)
@@ -30,7 +30,6 @@ LAYER=$(jq -r '.layer_dir // "2-services"' gitops-output.json)
 TYPE=$(jq -r '.type // "base"' gitops-output.json)
 
 echo "Namespace: ${NAMESPACE}"
-CONFIG_NAMESPACE="${NAMESPACE}"
 
 mkdir -p .testrepo
 
@@ -43,6 +42,9 @@ find . -name "*"
 set -e
 
 validate_gitops_content "openshift-operators" "${LAYER}" "${SERVER_NAME}" "operators" "ibmcloud-operator"
+
+check_k8s_resource "${NAMESPACE}" "subscription" "ibmcloud-operator"
+check_k8s_resource "${NAMESPACE}" "csv" "ibmcloud-operator.*"
 
 cd ..
 rm -rf .testrepo

@@ -1,0 +1,6 @@
+dependencies:
+- name: ibmcloud-operator
+  repository: https://charts.cloudnativetoolkit.dev
+  version: 0.2.2
+digest: sha256:99bda2aee41d70d07ef25e2802bcb1f2c5dfd729f50f8ebfca1772f82c321197
+generated: "2022-04-25T22:47:57.415002-05:00"

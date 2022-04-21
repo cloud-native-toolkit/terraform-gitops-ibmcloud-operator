@@ -1,9 +1,7 @@
 locals {
   name          = "ibmcloud-operator"
-  config_name   = "ibmcloud-operator-config"
   bin_dir       = module.setup_clis.bin_dir
   operator_yaml_dir = "${path.cwd}/.tmp/${local.name}/chart/${local.name}"
-  config_yaml_dir = "${path.cwd}/.tmp/${local.name}/chart/ibmcloud-operator-config"
   secret_dir = "${path.cwd}/.tmp/${local.name}/secrets"
   values_content = {
     global = {
@@ -46,7 +44,7 @@ resource null_resource setup_operator_gitops {
   }
 
   provisioner "local-exec" {
-    command = "${self.triggers.bin_dir}/igc gitops-module '${self.triggers.name}' -n '${self.triggers.namespace}' --contentDir '${self.triggers.yaml_dir}' --serverName '${self.triggers.server_name}' -l '${self.triggers.layer}' --type '${self.triggers.type}'"
+    command = "${self.triggers.bin_dir}/igc gitops-module '${self.triggers.name}' -n '${self.triggers.namespace}' --contentDir '${self.triggers.yaml_dir}' --serverName '${self.triggers.server_name}' -l '${self.triggers.layer}' --type '${self.triggers.type}' --cascadingDelete=false"
 
     environment = {
       GIT_CREDENTIALS = nonsensitive(self.triggers.git_credentials)

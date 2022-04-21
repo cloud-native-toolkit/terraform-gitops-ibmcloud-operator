@@ -52,7 +52,7 @@ check_k8s_resource () {
   local NAME="$3"
 
   count=0
-  until kubectl get "${GITOPS_TYPE}" "${NAME}" -n "${NS}" 1> /dev/null 2> /dev/null || [[ $count -gt 20 ]]; do
+  until [[ $(kubectl get "${GITOPS_TYPE}" -n "${NS}" -o json | jq -r --arg NAME "${NAME}" '.items[] | .metadata.name | select(. | test($NAME))' | wc -l) -gt 0 ]] || [[ $count -gt 20 ]]; do
     echo "Waiting for ${GITOPS_TYPE}/${NAME} in ${NS}"
     count=$((count + 1))
     sleep 30
@@ -60,12 +60,15 @@ check_k8s_resource () {
 
   if [[ $count -gt 20 ]]; then
     echo "Timed out waiting for ${GITOPS_TYPE}/${NAME}" >&2
+    kubectl get "${GITOPS_TYPE}" -n "${NS}"
     exit 1
   fi
 
-  kubectl get "${GITOPS_TYPE}" "${NAME}" -n "${NS}" -o yaml
+  local full_name=$(kubectl get "${GITOPS_TYPE}" -n "${NS}" -o json | jq -r --arg NAME "${NAME}" '.items[] | .metadata.name | select(. | test($NAME))' | head -1)
+
+  kubectl get "${GITOPS_TYPE}" "${full_name}" -n "${NS}" -o yaml
 
   if [[ "${GITOPS_TYPE}" =~ deployment|statefulset|daemonset ]]; then
-    kubectl rollout status "${GITOPS_TYPE}" "${NAME}" -n "${NS}"
+    kubectl rollout status "${GITOPS_TYPE}" "${full_name}" -n "${NS}"
   fi
 }
