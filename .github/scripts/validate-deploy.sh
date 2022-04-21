@@ -43,12 +43,6 @@ find . -name "*"
 set -e
 
 validate_gitops_content "openshift-operators" "${LAYER}" "${SERVER_NAME}" "operators" "ibmcloud-operator"
-validate_gitops_content "${CONFIG_NAMESPACE}" "${LAYER}" "${SERVER_NAME}" "${TYPE}" "${COMPONENT_NAME}" "secret.yaml"
-
-check_k8s_namespace "${CONFIG_NAMESPACE}"
-
-check_k8s_resource "${CONFIG_NAMESPACE}" "sealedsecret" "ibmcloud-operator-secret"
-check_k8s_resource "${CONFIG_NAMESPACE}" "secret" "ibmcloud-operator-secret"
 
 cd ..
 rm -rf .testrepo
