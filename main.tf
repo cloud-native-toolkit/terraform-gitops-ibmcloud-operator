@@ -9,6 +9,12 @@ locals {
     }
   }
   application_branch = "main"
+
+  namespace = var.namespace
+
+  layer = "infrastructure"
+  type = "operators"
+
 }
 
 module setup_clis {
@@ -67,14 +73,14 @@ resource gitops_module module {
   depends_on = [null_resource.create_yaml]
 
   name = local.name
-  #namespace = var.namespace
-  namespace = "openshift-operators"
+  namespace = var.namespace
+
   content_dir = local.yaml_dir
   server_name = var.server_name
-  # layer = local.layer
-  # type = local.type
-  layer = "infrastructure"
-  type = "operators"
+
+
+  layer = local.layer
+  type = local.type
   branch = local.application_branch
   config = yamlencode(var.gitops_config)
   credentials = yamlencode(var.git_credentials)
