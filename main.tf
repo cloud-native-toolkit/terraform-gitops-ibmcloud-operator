@@ -80,6 +80,7 @@ resource gitops_module module {
 
   name = local.name
   #namespace = var.namespace
+  namespace = "openshift-operators"
 
   content_dir = local.operator_yaml_dir
   server_name = var.server_name
