@@ -2,6 +2,7 @@ locals {
   name          = "ibmcloud-operator"
   bin_dir       = module.setup_clis.bin_dir
   operator_yaml_dir = "${path.cwd}/.tmp/${local.name}/chart/${local.name}"
+  yaml_dir = local.operator_yaml_dir
   secret_dir = "${path.cwd}/.tmp/${local.name}/secrets"
   values_content = {
     global = {
@@ -9,7 +10,7 @@ locals {
     }
   }
   application_branch = "main"
-  namespace = var.namespace
+  #namespace = var.namespace
   layer = "infrastructure"
   type = "operators"
   layer_config = var.gitops_config[local.layer]
