@@ -9,11 +9,10 @@ locals {
     }
   }
   application_branch = "main"
-
   namespace = var.namespace
-
   layer = "infrastructure"
   type = "operators"
+  layer_config = var.gitops_config[local.layer]
 
 }
 
