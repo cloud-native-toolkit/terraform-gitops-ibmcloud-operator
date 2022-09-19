@@ -34,6 +34,12 @@ resource null_resource create_operator_yaml {
   }
 }
 
+resource null_resource create_yaml {
+  provisioner "local-exec" {
+    command = "${path.module}/scripts/create-yaml.sh '${local.name}' '${local.yaml_dir}/'"
+  }
+}
+
 # resource null_resource setup_operator_gitops {
 #   depends_on = [null_resource.create_operator_yaml]
 
@@ -75,7 +81,7 @@ resource gitops_module module {
   name = local.name
   namespace = var.namespace
 
-  content_dir = local.yaml_dir
+  content_dir = local.operator_yaml_dir
   server_name = var.server_name
 
 
