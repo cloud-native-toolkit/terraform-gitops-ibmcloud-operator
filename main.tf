@@ -10,7 +10,7 @@ locals {
     }
   }
   application_branch = "main"
-  #namespace = var.namespace
+  namespace = "openshift-operators"
   layer = "infrastructure"
   type = "operators"
   layer_config = var.gitops_config[local.layer]
@@ -79,7 +79,7 @@ resource gitops_module module {
   depends_on = [null_resource.create_yaml]
 
   name = local.name
-  namespace = var.namespace
+  namespace = local.namespace
   #namespace = "openshift-operators"
 
   content_dir = local.operator_yaml_dir

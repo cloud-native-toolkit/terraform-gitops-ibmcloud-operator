@@ -13,7 +13,7 @@ output "branch" {
 
 output "namespace" {
   description = "The namespace where the module will be deployed"
-  value       = "openshift-operators"
+  value       = local.namespace
   depends_on  = [gitops_module.module]
 }
 
