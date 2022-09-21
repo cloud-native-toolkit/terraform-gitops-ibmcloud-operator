@@ -25,12 +25,12 @@ output "server_name" {
 
 output "layer" {
   description = "The layer where the module is deployed"
-  value       = "infrastructure"
+  value       = local.layer
   depends_on  = [gitops_module.module]
 }
 
 output "type" {
   description = "The type of module where the module is deployed"
-  value       = "base"
+  value       = local.type
   depends_on  = [gitops_module.module]
 }
