@@ -4,6 +4,6 @@ module "dev_software_olm" {
     cluster_config_file = module.dev_cluster.config_file_path
 
     cluster_version = ""
-    cluster_type = module.dev_cluster.platform.type_code
+    cluster_type = "ocp4"
     olm_version = "0.15.1"
 }
