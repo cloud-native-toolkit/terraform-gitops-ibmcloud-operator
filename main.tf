@@ -2,6 +2,7 @@ locals {
   name          = "ibmcloud-operator"
   bin_dir       = module.setup_clis.bin_dir
   operator_yaml_dir = "${path.cwd}/.tmp/${local.name}/chart/${local.name}"
+  yaml_dir = local.operator_yaml_dir
   secret_dir = "${path.cwd}/.tmp/${local.name}/secrets"
   values_content = {
     global = {
@@ -9,6 +10,11 @@ locals {
     }
   }
   application_branch = "main"
+  namespace = "openshift-operators"
+  layer = "infrastructure"
+  type = "operators"
+  layer_config = var.gitops_config[local.layer]
+
 }
 
 module setup_clis {
@@ -28,37 +34,60 @@ resource null_resource create_operator_yaml {
   }
 }
 
-resource null_resource setup_operator_gitops {
-  depends_on = [null_resource.create_operator_yaml]
-
-  triggers = {
-    name = local.name
-    namespace = "openshift-operators"
-    yaml_dir = local.operator_yaml_dir
-    server_name = var.server_name
-    layer = "infrastructure"
-    type = "operators"
-    git_credentials = yamlencode(var.git_credentials)
-    gitops_config   = yamlencode(var.gitops_config)
-    bin_dir = local.bin_dir
-  }
-
+resource null_resource create_yaml {
   provisioner "local-exec" {
-    command = "${self.triggers.bin_dir}/igc gitops-module '${self.triggers.name}' -n '${self.triggers.namespace}' --contentDir '${self.triggers.yaml_dir}' --serverName '${self.triggers.server_name}' -l '${self.triggers.layer}' --type '${self.triggers.type}' --cascadingDelete=false"
-
-    environment = {
-      GIT_CREDENTIALS = nonsensitive(self.triggers.git_credentials)
-      GITOPS_CONFIG   = self.triggers.gitops_config
-    }
+    command = "${path.module}/scripts/create-yaml.sh '${local.name}' '${local.yaml_dir}/'"
   }
+}
 
-  provisioner "local-exec" {
-    when = destroy
-    command = "${self.triggers.bin_dir}/igc gitops-module '${self.triggers.name}' -n '${self.triggers.namespace}' --delete --contentDir '${self.triggers.yaml_dir}' --serverName '${self.triggers.server_name}' -l '${self.triggers.layer}' --type '${self.triggers.type}'"
+# resource null_resource setup_operator_gitops {
+#   depends_on = [null_resource.create_operator_yaml]
 
-    environment = {
-      GIT_CREDENTIALS = nonsensitive(self.triggers.git_credentials)
-      GITOPS_CONFIG   = self.triggers.gitops_config
-    }
-  }
+#   triggers = {
+#     name = local.name
+#     namespace = "openshift-operators"
+#     yaml_dir = local.operator_yaml_dir
+#     server_name = var.server_name
+#     layer = "infrastructure"
+#     type = "operators"
+#     git_credentials = yamlencode(var.git_credentials)
+#     gitops_config   = yamlencode(var.gitops_config)
+#     bin_dir = local.bin_dir
+#   }
+
+#   provisioner "local-exec" {
+#     command = "${self.triggers.bin_dir}/igc gitops-module '${self.triggers.name}' -n '${self.triggers.namespace}' --contentDir '${self.triggers.yaml_dir}' --serverName '${self.triggers.server_name}' -l '${self.triggers.layer}' --type '${self.triggers.type}' --cascadingDelete=false"
+
+#     environment = {
+#       GIT_CREDENTIALS = nonsensitive(self.triggers.git_credentials)
+#       GITOPS_CONFIG   = self.triggers.gitops_config
+#     }
+#   }
+
+#   provisioner "local-exec" {
+#     when = destroy
+#     command = "${self.triggers.bin_dir}/igc gitops-module '${self.triggers.name}' -n '${self.triggers.namespace}' --delete --contentDir '${self.triggers.yaml_dir}' --serverName '${self.triggers.server_name}' -l '${self.triggers.layer}' --type '${self.triggers.type}'"
+
+#     environment = {
+#       GIT_CREDENTIALS = nonsensitive(self.triggers.git_credentials)
+#       GITOPS_CONFIG   = self.triggers.gitops_config
+#     }
+#   }
+# }
+
+resource gitops_module module {
+  depends_on = [null_resource.create_yaml]
+
+  name = local.name
+  namespace = local.namespace
+  #namespace = "openshift-operators"
+
+  content_dir = local.operator_yaml_dir
+  server_name = var.server_name
+
+  layer = local.layer
+  type = local.type
+  branch = local.application_branch
+  config = yamlencode(var.gitops_config)
+  credentials = yamlencode(var.git_credentials)
 }

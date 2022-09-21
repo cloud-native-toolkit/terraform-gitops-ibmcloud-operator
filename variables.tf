@@ -74,3 +74,4 @@ variable "server_name" {
   description = "The name of the server"
   default     = "default"
 }
+
